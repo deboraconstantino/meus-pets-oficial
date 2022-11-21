@@ -18,6 +18,10 @@
     "@angular/platform-browser": "^14.1.0",
     "@angular/platform-browser-dynamic": "^14.1.0",
     "@angular/router": "^14.1.0",
+    "@po-ui/ng-components": "^14.9.0",
+    "@po-ui/ng-templates": "^14.9.0",
+    "@totvs/po-theme": "^14.9.0",
+    "@totvs/protheus-lib-core": "^14.1.1",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"

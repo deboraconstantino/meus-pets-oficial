@@ -1,0 +1,102 @@
+<po-page-edit
+  [p-title]="title"
+  (p-cancel)="cancel()"
+  (p-save)="save(false)"
+  (p-save-new)="saveOrDelete()"
+  [p-disable-submit]="disableSubmit"
+  [p-literals]="customLiterals"
+  [p-breadcrumb]="breadcrumb">
+  <po-loading-overlay [hidden]="!isLoading"></po-loading-overlay>
+  <div class="po-row">
+    <po-container class="po-xl-12 po-lg-12 po-md-12 po-sm-12 po-mb-2">
+      <po-divider p-label="Informações do pet" p-border-width="medium"></po-divider>
+      <form [formGroup]="petForm" *ngIf="petForm">
+        <div class="po-row po-mb-2">
+          <po-input class="po-xl-4 po-lg-4 po-md-4 po-sm-12 po-mb-sm-2"
+            p-label="Nome"
+            p-required="true"
+            p-placeholder="Informar o nome do pet"
+            formControlName="name">
+          </po-input>
+
+          <po-input class="po-xl-3 po-lg-3 po-md-3 po-sm-12 po-mb-sm-2"
+            p-label="Raça"
+            p-required="true"
+            p-placeholder="Informar a raça do pet"
+            formControlName="breed">
+          </po-input>
+
+          <po-input class="po-xl-3 po-lg-3 po-md-3 po-sm-12 po-mb-sm-2"
+            p-label="Espécie"
+            p-required="true"
+            p-placeholder="Informar a espécie do pet"
+            formControlName="specie">
+          </po-input>
+
+          <po-combo class="po-xl-2 po-lg-2 po-md-2 po-sm-12 po-mb-sm-2"
+            p-label="Sexo"
+            formControlName="sexo"
+            [p-required]="true"
+            p-placeholder="Informar o sexo"
+            [p-options]="[{value: 'F', label: 'Fêmea'}, {value: 'M', label: 'Macho'}]">
+          </po-combo>
+        </div>
+
+        <div class="po-row">
+          <po-input class="po-xl-3 po-lg-3 po-md-3 po-sm-12 po-mb-sm-2"
+            p-label="Cor"
+            p-required="true"
+            p-placeholder="Informar a cor do pet"
+            formControlName="color">
+          </po-input>
+        </div>
+      </form>
+
+      <po-divider p-label="Informações do dono" p-border-width="medium"></po-divider>
+      <form [formGroup]="ownerForm">
+        <div class="po-row po-mb-2">
+          <po-combo class="po-xl-6 po-lg-6 po-md-6 po-sm-12 po-mb-sm-2" *ngIf="ownerNameOptions"
+            p-label="Dono"
+            formControlName="name"
+            [p-options]="ownerNameOptions"
+            [p-required]="true"
+            p-placeholder="Selecione o tutor"
+            (p-change)="getOwnerInformations($event)">
+          </po-combo>
+
+          <po-input class="po-xl-3 po-lg-3 po-md-3 po-sm-12 po-mb-sm-2"
+            p-label="RG"
+            p-disabled=true
+            formControlName="rg">
+          </po-input>
+
+          <po-input class="po-xl-3 po-lg-3 po-md-3 po-sm-12 po-mb-sm-2"
+            p-label="CPF"
+            p-disabled=true
+            formControlName="cpf">
+          </po-input>
+        </div>
+
+        <div class="po-row po-mb-2">
+          <po-input class="po-xl-6 po-lg-6 po-md-6 po-sm-12 po-mb-sm-2"
+            p-label="Email"
+            p-disabled=true
+            formControlName="email">
+          </po-input>
+
+          <po-input class="po-xl-3 po-lg-3 po-md-3 po-sm-12 po-mb-sm-2"
+            p-label="Telefone 1"
+            p-disabled=true
+            formControlName="tel1">
+          </po-input>
+
+          <po-input class="po-xl-3 po-lg-3 po-md-3 po-sm-12 po-mb-sm-2"
+            p-label="Telefone 2"
+            p-disabled=true
+            formControlName="tel2">
+          </po-input>
+        </div>
+      </form>
+    </po-container>
+  </div>
+</po-page-edit>

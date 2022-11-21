@@ -1,0 +1,27 @@
+<po-page-default
+  p-title="Pets"
+  [p-actions]="actions"
+  [p-breadcrumb]="breadcrumb">
+
+  <div class="po-mb-1" *ngIf="pets.items.length > 0">
+    <po-tag [p-value]="textRemainingRecords"></po-tag>
+  </div>
+
+  <po-table
+    [p-striped]="true"
+    [p-columns]="columns"
+    [p-items]="pets.items"
+    [p-loading]="isLoading"
+    [p-show-more-disabled]="!hasNextPage"
+    (p-show-more)="showMore()"
+    [p-loading-show-more]="isLoading">
+  </po-table>
+</po-page-default>
+
+<po-modal #petOwner [p-secondary-action]="{label: 'Editar', action: goToOwner.bind(this)}">
+  <div *ngIf="owner">
+    <po-info p-label="Nome" [p-value]="owner.name"></po-info>
+    <po-info p-label="E-mail" [p-value]="owner.email"></po-info>
+    <po-info p-label="Telefone 1" [p-value]="owner.tel1"></po-info>
+  </div>
+</po-modal>

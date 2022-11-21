@@ -1,0 +1,19 @@
+<po-page-default
+  p-title="Tutores"
+  [p-actions]="actions"
+  [p-breadcrumb]="breadcrumb">
+
+  <div class="po-mb-1" *ngIf="owners.items.length > 0">
+    <po-tag [p-value]="textRemainingRecords"></po-tag>
+  </div>
+
+  <po-table
+    [p-striped]="true"
+    [p-columns]="columns"
+    [p-items]="owners.items"
+    [p-loading]="isLoading"
+    [p-show-more-disabled]="!hasNextPage"
+    (p-show-more)="showMore()"
+    [p-loading-show-more]="isLoading">
+  </po-table>
+</po-page-default>

@@ -1,0 +1,24 @@
+<po-page-default
+  [p-title]="title"
+  [p-breadcrumb]="breadcrumb">
+  <div *ngIf="pets$ | async as pets else loading">
+    <div class="po-row"  *ngIf="pets.items.length > 0 else empty">
+      <po-widget class="po-xl-4 po-lg-4 po-md-4 po-sm-12" *ngFor="let pet of pets.items" (p-click)="goToPetView(pet)">
+        <po-info p-label="Nome" [p-value]="pet.name" [p-orientation]="orientation.Horizontal"></po-info>
+        <po-info p-label="Raça" [p-value]="pet.breed" [p-orientation]="orientation.Horizontal"></po-info>
+        <po-info p-label="Cor" [p-value]="pet.color" [p-orientation]="orientation.Horizontal"></po-info>
+        <po-info p-label="Sexo" [p-value]="pet.sexo" [p-orientation]="orientation.Horizontal"></po-info>
+      </po-widget>
+    </div>
+  </div>
+
+  <ng-template #loading>
+    <po-loading-overlay></po-loading-overlay>
+  </ng-template>
+
+  <ng-template #empty>
+    <div class="po-table-no-data po-text-center">
+      <span>Nenhum dado encontrado</span>
+    </div>
+  </ng-template>
+</po-page-default>
