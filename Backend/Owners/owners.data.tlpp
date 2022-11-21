@@ -1,0 +1,199 @@
+#include "tlpp-core.th"
+#include "FWMVCDEF.CH"
+
+namespace owners
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} OwnersData
+	Manipula os dados de tutores
+	@type		class
+	@author		debora.constantino
+	@since		27/09/2022
+/*/
+//------------------------------------------------------------------------------
+Class OwnersData From FWAdapterBaseV2
+    Public Data oHashFields	as Object
+
+    Public method new() as Object
+    Public method get()
+    Public method handleOwners() as Logical
+    Public method setHashFields()
+EndClass
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} OwnersData:new()
+	Obtém uma nova instância da classe OwnersData
+	@type		method
+	@author		debora.constantino
+	@since		27/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method new(cVerb as Character) as Object Class OwnersData
+    _Super:new(cVerb, .T.)
+Return Self
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} OwnersData::setHashFields
+    Define os campos utilizados na operação de Incluir e Alterar.
+	@type		method
+	@author		debora.constantino
+	@since		06/10/2022
+/*/
+//------------------------------------------------------------------------------
+METHOD setHashFields() CLASS OwnersData
+	::oHashFields := tHashMap():new()
+
+	::oHashFields:Set("id", "ZSB_ID")
+	::oHashFields:Set("name", "ZSB_NAME")
+	::oHashFields:Set("rg", "ZSB_RG")
+	::oHashFields:Set("cpf", "ZSB_CPF")
+	::oHashFields:Set("email", "ZSB_EMAIL")
+	::oHashFields:Set("tel1", "ZSB_TEL1")
+    ::oHashFields:Set("tel2", "ZSB_TEL2")
+Return Nil
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} OwnersData:get()
+	Retorna os dados de tutores
+	@type		method
+	@author		debora.constantino
+	@since		27/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method get(nPage as Numeric, nPageSize as Numeric, cFilter as Character,;
+    cFields as Character, cSort as Character, cOwnerId as Character) Class OwnersData
+    Local aArea as Array
+    Local cWhere as Character
+    Local aFilter as Array
+
+    aFilter := {}
+
+    If Empty(cOwnerId)
+        cWhere := "ZSB_FILIAL = '" + FwxFilial("ZSB") + "' AND D_E_L_E_T_ = ''"
+    Else
+        cWhere := "ZSB_ID = '" + cOwnerId + "' AND ZSB_FILIAL = '" + FwxFilial("ZSB") + "' AND D_E_L_E_T_ = ''"
+    EndIf
+
+    aArea   := FwGetArea()
+
+    AddMapFields(self)
+
+    If !Empty(cFilter)
+        aAdd(aFilter, {"FILTER", cFilter})
+        ::SetUrlFilter(aFilter)
+    EndIf
+
+    If !Empty(cFields)
+        ::SetFields(cFields)
+    EndIf
+
+    If !Empty(cSort)
+        ::SetOrderQuery(cSort)
+    EndIf
+
+    ::SetPage(nPage)
+    ::SetPageSize(nPageSize)
+    ::SetQuery(utils.getQuery('ZSB'))
+    ::SetWhere(cWhere)
+    ::SetOrder("ZSB_FILIAL, ZSB_ID")
+
+    If ::Execute()
+        ::FillGetResponse()
+    EndIf
+
+    RestArea( aArea )
+	aSize( aArea, 0 )
+Return Nil
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} OwnersData:handleOwners()
+	Inclui, altera ou exclui um tutor
+	@type		method
+	@author		debora.constantino
+	@since		28/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method handleOwners(nOperation as Numeric, jBody as Json, cOwnerId as Character) as Logical Class OwnersData
+    Local oModel	as Object
+	Local oModelZSB	as Object
+    Local lRet as Logical
+    Local aData as Array
+    
+    lRet := .T.
+    ::setHashFields()
+
+    If nOperation <> 5
+        aData := utils.buildData(jBody, self)
+	Endif
+
+    If nOperation <> 3
+        If !utils.searchRecord(cOwnerId, 'ZSB')
+            lRet := .F.
+            Return SetResponse(lRet)
+        EndIf
+    EndIf
+
+    oModel := FWLoadModel("MPETS002")
+    oModelZSB := oModel:GetModel("ZSBMASTER")
+    utils.setOperationModel(oModel, nOperation)
+
+    oModel:Activate()
+    If oModel:IsActive()
+        If oModel:GetOperation() <> MODEL_OPERATION_DELETE
+            lRet := utils.setValue(aData, oModelZSB, 'ZSB')
+		Endif
+    Else
+        lRet := .F.        
+    EndIf
+
+    If !lRet .Or. !( oModel:VldData() .And. oModel:CommitData() )
+		lRet := .F.
+        SetRestFault(400, utils.getError(oModel:GetErrorMessage()))
+	Endif
+
+	oModel:DeActivate()
+	FreeObj(oModelZSB)
+	FreeObj(oModel)
+Return SetResponse(lRet)
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} AddMapFields
+	Determina quais propriedades x campos do protheus serão apresentados
+	@type		function
+	@author		debora.constantino
+	@since		27/09/2022
+/*/
+//------------------------------------------------------------------------------
+Static Function AddMapFields(oSelf as Object)
+    oSelf:AddMapFields("id", "ZSB_ID", .T., .T., { "ZSB_ID", 'C', TamSX3('ZSB_ID')[1] , 0 })
+    oSelf:AddMapFields("name", "ZSB_NAME", .T., .F., { "ZSB_NAME", 'C', TamSX3('ZSB_NAME')[1] , 0 })
+    oSelf:AddMapFields("rg", "ZSB_RG", .T., .F., { "ZSB_RG", 'C', TamSX3('ZSB_RG')[1] , 0 })
+    oSelf:AddMapFields("cpf", "ZSB_CPF", .T., .F., { "ZSB_CPF", 'C', TamSX3('ZSB_CPF')[1] , 0 })
+    oSelf:AddMapFields("email", "ZSB_EMAIL", .T., .F., { "ZSB_EMAIL", 'C', TamSX3('ZSB_EMAIL')[1] , 0 })
+    oSelf:AddMapFields("tel1", "ZSB_TEL1", .T., .F., { "ZSB_TEL1", 'C', TamSX3('ZSB_TEL1')[1] , 0 })
+    oSelf:AddMapFields("tel2", "ZSB_TEL2", .T., .F., { "ZSB_TEL2", 'C', TamSX3('ZSB_TEL2')[1] , 0 })
+Return Nil
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} SetResponse
+	Monta objeto de resposta
+	@type		function
+	@author		debora.constantino
+	@since		28/09/2022
+/*/
+//------------------------------------------------------------------------------
+Static Function SetResponse(lRet as Logical) as Json
+    Local jResponse as Json
+
+    If lRet
+        jResponse := JsonObject():New()
+
+        jResponse['id'] := RTrim(ZSB->ZSB_ID)
+        jResponse['name'] := FwHttpEncode(RTrim(ZSB->ZSB_NAME))
+        jResponse['rg'] := RTrim(ZSB->ZSB_RG)
+        jResponse['cpf'] := RTrim(ZSB->ZSB_CPF)
+        jResponse['email'] := FwHttpEncode(RTrim(ZSB->ZSB_EMAIL))
+        jResponse['tel1'] := RTrim(ZSB->ZSB_TEL1)
+        jResponse['tel2'] := RTrim(ZSB->ZSB_TEL2)
+    EndIf
+Return jResponse

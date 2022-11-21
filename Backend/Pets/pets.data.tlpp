@@ -1,0 +1,218 @@
+#include "tlpp-core.th"
+#include "FWMVCDEF.CH"
+
+namespace pets
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsData
+	Manipula os dados de pets
+	@type		class
+	@author		debora.constantino
+	@since		27/09/2022
+/*/
+//------------------------------------------------------------------------------
+Class PetsData From FWAdapterBaseV2
+    Public Data oHashFields	as Object
+
+    Public method new() as Object
+    Public method get()
+    Public method handlePets() as Logical
+    Public method setHashFields()
+EndClass
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsData:new()
+	Obtém uma nova instância da classe PetsService
+	@type		method
+	@author		debora.constantino
+	@since		27/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method new(cVerb as Character) as Object Class PetsData
+    _Super:new(cVerb, .T.)
+Return Self
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsData::setHashFields
+    Define os campos utilizados na operação de Incluir e Alterar.
+	@type		method
+	@author		debora.constantino
+	@since		06/10/2022
+/*/
+//------------------------------------------------------------------------------
+METHOD setHashFields() CLASS PetsData
+	::oHashFields := tHashMap():new()
+
+	::oHashFields:Set("id", "ZSA_ID")
+	::oHashFields:Set("name", "ZSA_NAME")
+	::oHashFields:Set("breed", "ZSA_BREED")
+	::oHashFields:Set("color", "ZSA_COLOR")
+	::oHashFields:Set("sexo", "ZSA_SEXO")
+	::oHashFields:Set("specie", "ZSA_SPECIE")
+    ::oHashFields:Set("ownerid", "ZSA_OWNER")
+Return Nil
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsData:get()
+	Retorna os dados de pets
+	@type		method
+	@author		debora.constantino
+	@since		27/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method get(nPage as Numeric, nPageSize as Numeric, cFilter as Character,;
+    cFields as Character, cSort as Character, cPetId as Character) Class PetsData
+    Local aArea as Array
+    Local cWhere as Character
+    Local aFilter as Array
+
+    aFilter := {}
+
+    If Empty(cPetId)
+        cWhere := "ZSA_FILIAL = '" + FwxFilial("ZSA") + "' AND D_E_L_E_T_ = ''"
+    Else
+        cWhere := "ZSA_ID = '" + cPetId + "' AND ZSA_FILIAL = '" + FwxFilial("ZSA") + "' AND D_E_L_E_T_ = ''"
+    EndIf
+
+    aArea   := FwGetArea()
+
+    AddMapFields(self)
+
+    If !Empty(cFilter)
+        aAdd(aFilter, {"FILTER", cFilter})
+        ::SetUrlFilter(aFilter)
+    EndIf
+
+    If !Empty(cFields)
+        ::SetFields(cFields)
+    EndIf
+
+    If !Empty(cSort)
+        ::SetOrderQuery(cSort)
+    EndIf
+
+    ::SetPage(nPage)
+    ::SetPageSize(nPageSize)
+    ::SetQuery(utils.getQuery('ZSA'))
+    ::SetWhere(cWhere)
+    ::SetOrder("ZSA_FILIAL, ZSA_ID")
+
+    If ::Execute()
+        ::FillGetResponse()
+    EndIf
+
+    RestArea( aArea )
+	aSize( aArea, 0 )
+Return Nil
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsData:handlePets()
+	Inclui, altera ou exclui um pet
+	@type		method
+	@author		debora.constantino
+	@since		28/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method handlePets(nOperation as Numeric, jBody as Json, cPetId as Character) as Logical Class PetsData
+    Local oModel	as Object
+	Local oModelZSA	as Object
+    Local lRet as Logical
+    Local aData as Array
+    
+    lRet := .T.
+    ::setHashFields()
+
+    If nOperation <> 5
+        aData := utils.buildData(jBody, self)
+	Endif
+
+    If nOperation <> 3
+        If !utils.searchRecord(cPetId, 'ZSA')
+            lRet := .F.
+            Return SetResponse(lRet)
+        EndIf
+    EndIf
+
+    oModel := FWLoadModel("MPETS001")
+    oModelZSA := oModel:GetModel("ZSAMASTER")
+    utils.setOperationModel(oModel, nOperation)
+
+    oModel:Activate()
+    If oModel:IsActive()
+        If oModel:GetOperation() <> MODEL_OPERATION_DELETE
+            lRet := utils.setValue(aData, oModelZSA, 'ZSA')
+		Endif
+    Else
+        lRet := .F.        
+    EndIf
+
+    If !lRet .Or. !( oModel:VldData() .And. oModel:CommitData() )
+		lRet := .F.
+        SetRestFault(400, utils.getError(oModel:GetErrorMessage()))
+	Endif
+
+	oModel:DeActivate()
+	FreeObj(oModelZSA)
+	FreeObj(oModel)
+Return SetResponse(lRet)
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} AddMapFields
+	Determina quais propriedades x campos do protheus serão apresentados
+	@type		function
+	@author		debora.constantino
+	@since		27/09/2022
+/*/
+//------------------------------------------------------------------------------
+Static Function AddMapFields(oSelf as Object)
+    oSelf:AddMapFields("id", "ZSA_ID", .T., .T., { "ZSA_ID", 'C', TamSX3('ZSA_ID')[1] , 0 })
+    oSelf:AddMapFields("name", "ZSA_NAME", .T., .F., { "ZSA_NAME", 'C', TamSX3('ZSA_NAME')[1] , 0 })
+    oSelf:AddMapFields("breed", "ZSA_BREED", .T., .F., { "ZSA_BREED", 'C', TamSX3('ZSA_BREED')[1] , 0 })
+    oSelf:AddMapFields("color", "ZSA_COLOR", .T., .F., { "ZSA_COLOR", 'C', TamSX3('ZSA_COLOR')[1] , 0 })
+    oSelf:AddMapFields("sexo", "ZSA_SEXO", .T., .F., { "ZSA_SEXO", 'C', TamSX3('ZSA_SEXO')[1] , 0 })
+    oSelf:AddMapFields("specie", "ZSA_SPECIE", .T., .F., { "ZSA_SPECIE", 'C', TamSX3('ZSA_SPECIE')[1] , 0 })
+    oSelf:AddMapFields("ownerid", "ZSA_OWNER", .T., .F., { "ZSA_OWNER", 'C', TamSX3('ZSA_OWNER')[1] , 0 })
+Return Nil
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} SetResponse
+	Monta objeto de resposta
+	@type		function
+	@author		debora.constantino
+	@since		28/09/2022
+/*/
+//------------------------------------------------------------------------------
+Static Function SetResponse(lRet as Logical) as Json
+    Local jResponse as Json
+
+    If lRet
+        jResponse := JsonObject():New()
+
+        jResponse['id'] := RTrim(ZSA->ZSA_ID)
+        jResponse['name'] := FwHttpEncode(RTrim(ZSA->ZSA_NAME))
+        jResponse['breed'] := FwHttpEncode(RTrim(ZSA->ZSA_BREED))
+        jResponse['color'] := FwHttpEncode(RTrim(ZSA->ZSA_COLOR))
+        jResponse['sexo'] := RTrim(ZSA->ZSA_SEXO)
+        jResponse['specie'] := FwHttpEncode(RTrim(ZSA->ZSA_SPECIE))
+        jResponse['ownerid'] := RTrim(ZSA->ZSA_OWNER)
+    EndIf
+Return jResponse
+
+Static Function buildData(jBody as Json, oPets as Object) as Array
+    Local aData as Array
+    Local aFields as Array
+    Local nField as Numeric
+    Local cField as Character
+
+    aData := {}
+    aFields := {}
+
+    aFields := jBody:GetNames()
+    oPets:setHashFields()
+
+    For nField := 1 To Len(aFields)
+        If oPets:oHashFields:get(aFields[nField], @cField)
+            aAdd(aData, {cField, jBody[aFields[nField]]})
+        EndIf
+    Next
+Return aData

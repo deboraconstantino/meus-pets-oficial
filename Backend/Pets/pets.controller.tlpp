@@ -1,0 +1,163 @@
+#include 'tlpp-core.th'
+
+namespace pets
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsController
+	API para Consultar, Incluir, Alterar e Excluir um Pet
+	@type		class
+	@author		debora.constantino
+	@since 		27/09/2022
+/*/
+//------------------------------------------------------------------------------
+Class PetsController
+	Data jResponse  as Json
+	Data oService   as Object
+
+	Public Method new() as Object
+
+	@Get("/api/v1/pets")
+	Public Method get() as Logical
+
+	@Get("/api/v1/pets/:id")
+	Public Method getById() as Logical
+
+	@Post("/api/v1/pets")
+	Public Method post() as Logical
+
+	@Put("/api/v1/pets/:id")
+	Public Method put() as Logical
+
+	@Delete("/api/v1/pets/:id")
+	Public Method delete() as Logical
+EndClass
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsController:new() as Object
+	Obtem uma nova instância da classe PetsController
+	@type 		method
+	@author		debora.constantino
+	@since 		27/09/2022
+	@return		object, uma nova instancia da classe PetsController
+/*/
+//------------------------------------------------------------------------------
+Method new() as Object Class PetsController
+	::oService  := PetsService():new()
+	::jResponse := JsonObject():new()
+Return self
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsController:get() as Logical
+	Retornar todos os pets
+	@type		method
+	@author		debora.constantino
+	@since 		27/09/2022
+	@return		logical, Verdadeiro
+/*/
+//------------------------------------------------------------------------------
+Method get() as Logical Class PetsController
+	Local cFields as Character
+	Local cSort as Character
+	Local cFilter as Character
+	Local nPage as Numeric
+	Local nPageSize as Numeric
+
+	cFields := utils.getQueryParam('FIELDS')
+	cSort := utils.getQueryParam('SORT')
+	cFilter := utils.getQueryParam('FILTER')
+	nPage := utils.getQueryParam('page')
+	nPageSize := utils.getQueryParam('pageSize')
+
+    oRest:setKeyHeaderResponse('Content-Type','application/json; charset=utf-8')
+	oRest:setResponse(::oService:get(Val(nPage), Val(nPageSize), cFilter, cFields, cSort))
+Return .T.
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsController:getById() as Logical
+	Retornar um pet pelo seu id
+	@type		method
+	@author		debora.constantino
+	@since 		06/10/2022
+	@return		logical, Verdadeiro
+/*/
+//------------------------------------------------------------------------------
+Method getById() as Logical Class PetsController
+	Local cId as Character
+	Local cFields as Character
+
+	cFields := utils.getQueryParam('FIELDS')
+
+	oRest:setKeyHeaderResponse('Content-Type','application/json; charset=utf-8')
+	cId := oRest:getPathParamsRequest()['id']
+	oRest:setResponse(::oService:get(1, 10, /* cFilter */, cFields, /* cSort */, cId))
+Return .T.
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsController:post() as Logical
+	Inclui um pet
+	@type		method
+	@author		debora.constantino
+	@since 		28/09/2022
+	@return		logical, Verdadeiro
+/*/
+//------------------------------------------------------------------------------
+Method post() as Logical Class PetsController
+	Local cBody as Character
+	Local jBody as Json
+
+	oRest:setKeyHeaderResponse('Content-Type','application/json; charset=utf-8')
+
+	cBody := oRest:getBodyRequest()
+	jBody := JsonObject():New()
+
+	If jBody:FromJson(cBody) == Nil
+		oRest:setResponse(::oService:post(3, jBody))
+	Else
+		setRestFault(400, "Json inválido")
+	EndIf
+Return
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsController:put() as Logical
+	Altera um pet
+	@type		method
+	@author		debora.constantino
+	@since 		28/09/2022
+	@return		logical, Verdadeiro
+/*/
+//------------------------------------------------------------------------------
+Method put() as Logical Class PetsController
+	Local cBody as Character
+	Local jBody as Json
+	Local cId as Character
+
+	oRest:setKeyHeaderResponse('Content-Type','application/json; charset=utf-8')
+
+	cId := oRest:getPathParamsRequest()['id']
+	cBody := oRest:getBodyRequest()
+	jBody := JsonObject():New()
+
+	If jBody:FromJson(cBody) == Nil
+		oRest:setResponse(::oService:put(4, jBody, cId))
+	Else
+		setRestFault(400, "Json inválido")
+	EndIf
+Return .T.
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsController:delete() as Logical
+	Exclui um pet
+	@type		method
+	@author		debora.constantino
+	@since 		28/09/2022
+	@return		logical, Verdadeiro
+/*/
+//------------------------------------------------------------------------------
+Method delete() as Logical Class PetsController
+	Local cId as Character
+
+	oRest:setKeyHeaderResponse('Content-Type','application/json; charset=utf-8')
+
+	cId := oRest:getPathParamsRequest()['id']
+	oRest:setResponse(::oService:delete(5, cId))
+Return .T.

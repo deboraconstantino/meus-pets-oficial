@@ -1,0 +1,100 @@
+#include 'tlpp-core.th'
+#include "FWMVCDEF.CH"
+
+namespace utils
+
+// Função para pegar os queryParam - Filter
+Function getQueryParam(cName as Character) as Character
+    Local cParamText as Character
+
+    cParamText := oRest:getQueryRequest():GetJsonText(cName)
+    If cParamText == 'null'
+        If cName == 'page'
+            cParamText := '1'
+        ElseIf cName == 'pageSize'
+            cParamText := '10'
+        Else
+            cParamText := ''
+        EndIf
+    EndIf
+Return cParamText
+
+// Função que retorna a query de acordo com a tabela
+Function getQuery(cTable as Character) as Character
+    Local cQuery as Character
+
+    cQuery := "SELECT #QueryFields# FROM " + RetSqlName(cTable) + " " + cTable
+    cQuery += " WHERE #QueryWhere#"
+Return cQuery
+
+// Função que procura pelo registro de acordo com a tabela
+Function searchRecord(cId as Character, cTable as Character) as Logical
+    Local lRet as Logical
+
+    lRet := .T.
+
+    DbSelectArea(cTable)
+    DbSetOrder(1)
+    If !(cTable)->(DbSeek(FwxFilial(cTable)+cId))
+        lRet := .F.
+        SetRestFault(404, FwHttpEncode("Registro não encontrado: " + cId))
+    EndIf
+Return lRet
+
+// Função que seta a operação no modelo
+Function setOperationModel(oModel as Object, nOperation as Numeric)
+    If nOperation == 3
+		oModel:SetOperation(MODEL_OPERATION_INSERT)
+	Elseif nOperation == 4
+		oModel:SetOperation(MODEL_OPERATION_UPDATE)
+	Elseif nOperation == 5
+		oModel:SetOperation(MODEL_OPERATION_DELETE)
+	Endif
+Return Nil
+
+// Função que seta os valores a serem incluídos/alterados no modelo
+Function setValue(aData as Array, oModel as Object, cTable as Character) as Logical
+    Local nX as Numeric
+    Local lRet as Logical
+
+    lRet := .T.
+    For nX := 1 To Len(aData)
+        If (aData[nX,1] != cTable + "_ID")
+            If !oModel:SetValue(aData[nX,1], aData[nX,2])
+                lRet := .F.
+                Exit
+            EndIf
+        EndIf
+    Next
+Return lRet
+
+// Função que retorna o erro do modelo
+Function getError(aMsgError as Array)
+    Local cError as Character
+    Local nError as Numeric
+
+    For nError := 1 To Len(aMsgError)
+        If ValType(aMsgError[nError]) == "C"
+            cError += StrTran( StrTran( aMsgError[nError], "<", "" ), "-", "" ) + (" ")
+        EndIf
+    Next
+Return cError
+
+// Função que faz o de para das informações de acordo com o HashFields
+Function buildData(jBody as Json, oResource as Object) as Array
+    Local aData as Array
+    Local aFields as Array
+    Local nField as Numeric
+    Local cField as Character
+
+    aData := {}
+    aFields := {}
+
+    aFields := jBody:GetNames()
+
+    For nField := 1 To Len(aFields)
+        If oResource:oHashFields:get(aFields[nField], @cField)
+            aAdd(aData, {cField, jBody[aFields[nField]]})
+        EndIf
+    Next
+Return aData

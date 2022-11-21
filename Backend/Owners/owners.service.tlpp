@@ -1,0 +1,117 @@
+#include "tlpp-core.th"
+
+namespace owners
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} OwnersService
+	Manipula os dados de tutores
+	@type		class
+	@author		debora.constantino
+	@since		27/09/2022
+/*/
+//------------------------------------------------------------------------------
+Class OwnersService
+    Public Data jResponse as Json
+
+    Public method new() as Object
+    Public method get() as Json
+    Public method post() as Json
+    Public method put() as Json
+    Public method delete() as Json
+EndClass
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} OwnersServices:new()
+	Obtém uma nova instância da classe OwnersService
+	@type		method
+	@author		debora.constantino
+	@since		27/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method new() as Object Class OwnersService
+    ::jResponse := JsonObject():New()
+Return Self
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} OwnersService:get()
+	Retorna os dados de tutores
+	@type		method
+	@author		debora.constantino
+	@since		27/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method get(nPage as Numeric, nPageSize as Numeric, cFilter as Character,;
+    cFields as Character, cSort as Character, cOwnerId as Character) as Json Class OwnersService
+    Local oData as Object
+
+    oData := OwnersData():new("GET")
+    oData:get(nPage, nPageSize, cFilter, cFields, cSort, cOwnerId)
+
+    If oData:lOk
+        ::jResponse := oData:gtJsonObjResponse()
+        If !Empty(cOwnerId) .And. Len(::jResponse['items']) > 0
+            ::jResponse := ::jResponse['items'][1]
+        EndIf
+    Else
+        ::jResponse := SetRestFault(oData:GetCode(), oData:GetMessage())
+    EndIf
+Return ::jResponse
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} OwnersService:post()
+	Inclui um tutor
+	@type		method
+	@author		debora.constantino
+	@since		28/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method post(nOperation as Numeric, jBody as Json) as Json Class OwnersService
+    Local oData as Object
+
+    oData := OwnersData():new("POST")
+    ::jResponse := oData:handleOwners(nOperation, jBody)
+
+    If !oData:lOk
+        ::jResponse := SetRestFault(oData:GetCode(), oData:GetMessage())
+    EndIf
+Return ::jResponse
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} OwnersService:put()
+	Altera um tutor
+	@type		method
+	@author		debora.constantino
+	@since		28/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method put(nOperation as Numeric, jBody as Json, cOwnerId as Character) as Json Class OwnersService
+    Local oData as Object
+
+    oData := OwnersData():new("PUT")
+    ::jResponse := oData:handleOwners(nOperation, jBody, cOwnerId)
+
+    If !oData:lOk
+        ::jResponse := SetRestFault(oData:GetCode(), oData:GetMessage())
+    EndIf
+Return ::jResponse
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} OwnersService:delete()
+	Exclui um tutor
+	@type		method
+	@author		debora.constantino
+	@since		28/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method delete(nOperation as Numeric, cOwnerId as Character) as Json Class OwnersService
+    Local oData as Object
+
+    oData := OwnersData():new("DELETE")
+    oData:handleOwners(nOperation,, cOwnerId)
+
+    If oData:lOk
+        ::jResponse := oData:GetJsonObject()
+    Else
+        ::jResponse := SetRestFault(oData:GetCode(), oData:GetMessage())
+    EndIf
+Return ::jResponse

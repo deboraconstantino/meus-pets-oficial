@@ -1,0 +1,117 @@
+#include "tlpp-core.th"
+
+namespace pets
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsService
+	Manipula os dados de pets
+	@type		class
+	@author		debora.constantino
+	@since		27/09/2022
+/*/
+//------------------------------------------------------------------------------
+Class PetsService
+    Public Data jResponse as Json
+
+    Public method new() as Object
+    Public method get() as Json
+    Public method post() as Json
+    Public method put() as Json
+    Public method delete() as Json
+EndClass
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsServices:new()
+	Obtém uma nova instância da classe PetsService
+	@type		method
+	@author		debora.constantino
+	@since		27/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method new() as Object Class PetsService
+    ::jResponse := JsonObject():New()
+Return Self
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsService:get()
+	Retorna os dados de pets
+	@type		method
+	@author		debora.constantino
+	@since		27/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method get(nPage as Numeric, nPageSize as Numeric, cFilter as Character,;
+    cFields as Character, cSort as Character, cPetId as Character) as Json Class PetsService
+    Local oData as Object
+
+    oData := PetsData():new("GET")
+    oData:get(nPage, nPageSize, cFilter, cFields, cSort, cPetId)
+
+    If oData:lOk
+        ::jResponse := oData:gtJsonObjResponse()
+        If !Empty(cPetId) .And. Len(::jResponse['items']) > 0
+            ::jResponse := ::jResponse['items'][1]
+        EndIf
+    Else
+        ::jResponse := SetRestFault(oData:GetCode(), oData:GetMessage())
+    EndIf
+Return ::jResponse
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsService:post()
+	Inclui um pet
+	@type		method
+	@author		debora.constantino
+	@since		28/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method post(nOperation as Numeric, jBody as Json) as Json Class PetsService
+    Local oData as Object
+
+    oData := PetsData():new("POST")
+    ::jResponse := oData:handlePets(nOperation, jBody)
+
+    If !oData:lOk
+        ::jResponse := SetRestFault(oData:GetCode(), oData:GetMessage())
+    EndIf
+Return ::jResponse
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsService:put()
+	Altera um pet
+	@type		method
+	@author		debora.constantino
+	@since		28/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method put(nOperation as Numeric, jBody as Json, cPetId as Character) as Json Class PetsService
+    Local oData as Object
+
+    oData := PetsData():new("PUT")
+    ::jResponse = oData:handlePets(nOperation, jBody, cPetId)
+
+    If !oData:lOk
+        ::jResponse := SetRestFault(oData:GetCode(), oData:GetMessage())
+    EndIf
+Return ::jResponse
+
+//------------------------------------------------------------------------------
+/*/{Protheus.doc} PetsService:delete()
+	Exclui um pet
+	@type		method
+	@author		debora.constantino
+	@since		28/09/2022
+/*/
+//------------------------------------------------------------------------------
+Method delete(nOperation as Numeric, cPetId as Character) as Json Class PetsService
+    Local oData as Object
+
+    oData := PetsData():new("DELETE")
+    oData:handlePets(nOperation,, cPetId)
+
+    If oData:lOk
+        ::jResponse := oData:GetJsonObject()
+    Else
+        ::jResponse := SetRestFault(oData:GetCode(), oData:GetMessage())
+    EndIf
+Return ::jResponse
