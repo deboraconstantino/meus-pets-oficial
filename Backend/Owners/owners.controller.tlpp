@@ -161,25 +161,3 @@ Method delete() as Logical Class OwnersController
 	cId := oRest:getPathParamsRequest()['id']
 	oRest:setResponse(::oService:delete(5, cId))
 Return .T.
-
-//------------------------------------------------------------------------------
-/*/{Protheus.doc} getPageAndPageSize
-	Faz tratativa para saber se recebeu a page e pageSize
-	@type		function
-	@author		debora.constantino
-	@since 		27/09/2022
-/*/
-//------------------------------------------------------------------------------
-Static Function getPageAndPageSize(nPage as Numeric, nPageSize as Numeric)
-	If (oRest:getQueryRequest():GetJsonText('pageSize') != 'null')
-		nPageSize := Val(oRest:getQueryRequest():GetJsonText('pageSize'))
-	Else
-		nPageSize := 10
-	EndIf
-
-	If (oRest:getQueryRequest():GetJsonText('page') != 'null')
-		nPage := Val(oRest:getQueryRequest():GetJsonText('page'))
-	Else
-		nPage := 1
-	Endif
-Return Nil

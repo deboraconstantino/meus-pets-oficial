@@ -197,22 +197,3 @@ Static Function SetResponse(lRet as Logical) as Json
         jResponse['ownerid'] := RTrim(ZSA->ZSA_OWNER)
     EndIf
 Return jResponse
-
-Static Function buildData(jBody as Json, oPets as Object) as Array
-    Local aData as Array
-    Local aFields as Array
-    Local nField as Numeric
-    Local cField as Character
-
-    aData := {}
-    aFields := {}
-
-    aFields := jBody:GetNames()
-    oPets:setHashFields()
-
-    For nField := 1 To Len(aFields)
-        If oPets:oHashFields:get(aFields[nField], @cField)
-            aAdd(aData, {cField, jBody[aFields[nField]]})
-        EndIf
-    Next
-Return aData
