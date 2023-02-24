@@ -93,7 +93,7 @@ Method get(nPage as Numeric, nPageSize as Numeric, cFilter as Character,;
 
     ::SetPage(nPage)
     ::SetPageSize(nPageSize)
-    ::SetQuery(utils.getQuery('ZSB'))
+    ::SetQuery(utils.u_getQuery('ZSB'))
     ::SetWhere(cWhere)
     ::SetOrder("ZSB_FILIAL, ZSB_ID")
 
@@ -123,11 +123,11 @@ Method handleOwners(nOperation as Numeric, jBody as Json, cOwnerId as Character)
     ::setHashFields()
 
     If nOperation <> 5
-        aData := utils.buildData(jBody, self)
+        aData := utils.u_buildData(jBody, self)
 	Endif
 
     If nOperation <> 3
-        If !utils.searchRecord(cOwnerId, 'ZSB')
+        If !utils.u_searchRecord(cOwnerId, 'ZSB')
             lRet := .F.
             Return SetResponse(lRet)
         EndIf
@@ -135,12 +135,12 @@ Method handleOwners(nOperation as Numeric, jBody as Json, cOwnerId as Character)
 
     oModel := FWLoadModel("MPETS002")
     oModelZSB := oModel:GetModel("ZSBMASTER")
-    utils.setOperationModel(oModel, nOperation)
+    utils.u_setOperationModel(oModel, nOperation)
 
     oModel:Activate()
     If oModel:IsActive()
         If oModel:GetOperation() <> MODEL_OPERATION_DELETE
-            lRet := utils.setValue(aData, oModelZSB, 'ZSB')
+            lRet := utils.u_setValue(aData, oModelZSB, 'ZSB')
 		Endif
     Else
         lRet := .F.        
@@ -148,7 +148,7 @@ Method handleOwners(nOperation as Numeric, jBody as Json, cOwnerId as Character)
 
     If !lRet .Or. !( oModel:VldData() .And. oModel:CommitData() )
 		lRet := .F.
-        SetRestFault(400, utils.getError(oModel:GetErrorMessage()))
+        SetRestFault(400, utils.u_getError(oModel:GetErrorMessage()))
 	Endif
 
 	oModel:DeActivate()

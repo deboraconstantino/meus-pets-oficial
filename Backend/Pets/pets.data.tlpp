@@ -93,7 +93,7 @@ Method get(nPage as Numeric, nPageSize as Numeric, cFilter as Character,;
 
     ::SetPage(nPage)
     ::SetPageSize(nPageSize)
-    ::SetQuery(utils.getQuery('ZSA'))
+    ::SetQuery(utils.u_getQuery('ZSA'))
     ::SetWhere(cWhere)
     ::SetOrder("ZSA_FILIAL, ZSA_ID")
 
@@ -123,11 +123,11 @@ Method handlePets(nOperation as Numeric, jBody as Json, cPetId as Character) as 
     ::setHashFields()
 
     If nOperation <> 5
-        aData := utils.buildData(jBody, self)
+        aData := utils.u_buildData(jBody, self)
 	Endif
 
     If nOperation <> 3
-        If !utils.searchRecord(cPetId, 'ZSA')
+        If !utils.u_searchRecord(cPetId, 'ZSA')
             lRet := .F.
             Return SetResponse(lRet)
         EndIf
@@ -135,12 +135,12 @@ Method handlePets(nOperation as Numeric, jBody as Json, cPetId as Character) as 
 
     oModel := FWLoadModel("MPETS001")
     oModelZSA := oModel:GetModel("ZSAMASTER")
-    utils.setOperationModel(oModel, nOperation)
+    utils.u_setOperationModel(oModel, nOperation)
 
     oModel:Activate()
     If oModel:IsActive()
         If oModel:GetOperation() <> MODEL_OPERATION_DELETE
-            lRet := utils.setValue(aData, oModelZSA, 'ZSA')
+            lRet := utils.u_setValue(aData, oModelZSA, 'ZSA')
 		Endif
     Else
         lRet := .F.        
@@ -148,7 +148,7 @@ Method handlePets(nOperation as Numeric, jBody as Json, cPetId as Character) as 
 
     If !lRet .Or. !( oModel:VldData() .And. oModel:CommitData() )
 		lRet := .F.
-        SetRestFault(400, utils.getError(oModel:GetErrorMessage()))
+        SetRestFault(400, utils.u_getError(oModel:GetErrorMessage()))
 	Endif
 
 	oModel:DeActivate()

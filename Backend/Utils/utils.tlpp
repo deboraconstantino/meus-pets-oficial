@@ -4,7 +4,7 @@
 namespace utils
 
 // Função para pegar os queryParam - Filter
-Function getQueryParam(cName as Character) as Character
+User Function getQueryParam(cName as Character) as Character
     Local cParamText as Character
 
     cParamText := oRest:getQueryRequest():GetJsonText(cName)
@@ -20,7 +20,7 @@ Function getQueryParam(cName as Character) as Character
 Return cParamText
 
 // Função que retorna a query de acordo com a tabela
-Function getQuery(cTable as Character) as Character
+User Function getQuery(cTable as Character) as Character
     Local cQuery as Character
 
     cQuery := "SELECT #QueryFields# FROM " + RetSqlName(cTable) + " " + cTable
@@ -28,7 +28,7 @@ Function getQuery(cTable as Character) as Character
 Return cQuery
 
 // Função que procura pelo registro de acordo com a tabela
-Function searchRecord(cId as Character, cTable as Character) as Logical
+User Function searchRecord(cId as Character, cTable as Character) as Logical
     Local lRet as Logical
 
     lRet := .T.
@@ -42,7 +42,7 @@ Function searchRecord(cId as Character, cTable as Character) as Logical
 Return lRet
 
 // Função que seta a operação no modelo
-Function setOperationModel(oModel as Object, nOperation as Numeric)
+User Function setOperationModel(oModel as Object, nOperation as Numeric)
     If nOperation == 3
 		oModel:SetOperation(MODEL_OPERATION_INSERT)
 	Elseif nOperation == 4
@@ -53,7 +53,7 @@ Function setOperationModel(oModel as Object, nOperation as Numeric)
 Return Nil
 
 // Função que seta os valores a serem incluídos/alterados no modelo
-Function setValue(aData as Array, oModel as Object, cTable as Character) as Logical
+User Function setValue(aData as Array, oModel as Object, cTable as Character) as Logical
     Local nX as Numeric
     Local lRet as Logical
 
@@ -69,7 +69,7 @@ Function setValue(aData as Array, oModel as Object, cTable as Character) as Logi
 Return lRet
 
 // Função que retorna o erro do modelo
-Function getError(aMsgError as Array)
+User Function getError(aMsgError as Array)
     Local cError as Character
     Local nError as Numeric
 
@@ -81,7 +81,7 @@ Function getError(aMsgError as Array)
 Return cError
 
 // Função que faz o de para das informações de acordo com o HashFields
-Function buildData(jBody as Json, oResource as Object) as Array
+User Function buildData(jBody as Json, oResource as Object) as Array
     Local aData as Array
     Local aFields as Array
     Local nField as Numeric

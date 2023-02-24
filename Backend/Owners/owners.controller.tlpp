@@ -62,11 +62,11 @@ Method get() as Logical Class OwnersController
 	Local nPage as Numeric
 	Local nPageSize as Numeric
 
-	cFields := utils.getQueryParam('FIELDS')
-	cSort := utils.getQueryParam('SORT')
-	cFilter := utils.getQueryParam('FILTER')
-	nPage := utils.getQueryParam('page')
-	nPageSize := utils.getQueryParam('pageSize')
+	cFields := utils.u_getQueryParam('FIELDS')
+	cSort := utils.u_getQueryParam('SORT')
+	cFilter := utils.u_getQueryParam('FILTER')
+	nPage := utils.u_getQueryParam('page')
+	nPageSize := utils.u_getQueryParam('pageSize')
 
     oRest:setKeyHeaderResponse('Content-Type','application/json; charset=utf-8')
 	oRest:setResponse(::oService:get(Val(nPage), Val(nPageSize), cFilter, cFields, cSort))
@@ -85,7 +85,7 @@ Method getById() as Logical Class OwnersController
 	Local cId as Character
 	Local cFields as Character
 
-	cFields := utils.getQueryParam('FIELDS')
+	cFields := utils.u_getQueryParam('FIELDS')
 
 	oRest:setKeyHeaderResponse('Content-Type','application/json; charset=utf-8')
 	cId := oRest:getPathParamsRequest()['id']

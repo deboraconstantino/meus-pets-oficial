@@ -1,7 +1,7 @@
 #INCLUDE "TOTVS.CH"
 #INCLUDE "FWMVCDEF.CH"
 
-Function MPETS001()
+User Function MPETS001()
 	Local oMBrowse 	:= Nil
 
 	oMBrowse := FWMBrowse():New()
@@ -24,7 +24,7 @@ Static Function ModelDef() as Object
     Local oModel        as Object
     Local oStructZSA    := FWFormStruct(1,'ZSA',/*bAvalCampo*/,/*lViewUsado*/)
 
-    oModel := MPFormModel():New("MPETS001",/*bPreValidacao*/,/*bPosValid*/,/*bCommit*/,/*bCancel*/)
+    oModel := MPFormModel():New("PETS001",/*bPreValidacao*/,/*bPosValid*/,/*bCommit*/,/*bCancel*/)
     oModel:AddFields("ZSAMASTER",/*cOwner*/,oStructZSA,/*bPreValidacao*/,/*bPosValidacao*/,/*bCarga*/)
     oModel:GetModel("ZSAMASTER"):SetDescription("ZSA")
 	oModel:SetPrimaryKey({"ZSA_FILIAL", "ZSA_ID"})
